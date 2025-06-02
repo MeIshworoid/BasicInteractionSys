@@ -9,6 +9,8 @@ public class Player : MonoBehaviour
     [SerializeField] private LayerMask pickableLayerMask;
     [SerializeField] private Transform playerCameraTransform;
     [SerializeField] private GameObject pickUPUI;
+    [SerializeField] private Transform pickUpParent;
+    [SerializeField] private GameObject inHandItem;
     [SerializeField]
     [Min(1)]
     private float hitRange = 3;
@@ -26,17 +28,36 @@ public class Player : MonoBehaviour
 
     private void Throw(InputAction.CallbackContext context)
     {
-        
+        if (inHandItem != null)
+        {
+            inHandItem.transform.SetParent(null);
+            Rigidbody rb = inHandItem.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.isKinematic = false;
+                rb.AddForce(playerCameraTransform.forward * 10f, ForceMode.Impulse);
+            }
+            inHandItem = null;
+        }
     }
 
     private void Use(InputAction.CallbackContext context)
     {
-       
+
     }
 
     private void Drop(InputAction.CallbackContext context)
     {
-       
+        if (inHandItem != null)
+        {
+            inHandItem.transform.SetParent(null);
+            Rigidbody rb = inHandItem.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.isKinematic = false;
+            }
+            inHandItem = null;
+        }
     }
 
     private void Interact(InputAction.CallbackContext context)
@@ -44,6 +65,31 @@ public class Player : MonoBehaviour
         if (hit.collider != null)
         {
             Debug.Log(hit.collider.name);
+            Rigidbody rb = hit.collider.GetComponent<Rigidbody>();
+            if (hit.collider.GetComponent<Food>() || hit.collider.GetComponent<Weapon>())
+            {
+                Debug.Log("Food here...");
+                inHandItem = hit.collider.gameObject;
+                inHandItem.transform.position = Vector3.zero;
+                inHandItem.transform.rotation = Quaternion.identity;
+                inHandItem.transform.SetParent(pickUpParent.transform, false);
+                if (rb != null)
+                {
+                    rb.isKinematic = true;
+                }
+                return;
+            }
+            if (hit.collider.GetComponent<Item>())
+            {
+                Debug.Log("Item here...");
+                inHandItem = hit.collider.gameObject;
+                inHandItem.transform.SetParent(pickUpParent.transform, true);
+                if (rb != null)
+                {
+                    rb.isKinematic = true;
+                }
+                return;
+            }
         }
     }
 
@@ -56,6 +102,10 @@ public class Player : MonoBehaviour
             //hit.collider.GetComponent<Highlight>()?.ToggleHighlight(false);
             hit.collider.GetComponent<Outline>().enabled = false;
             pickUPUI.SetActive(false);
+        }
+        if (inHandItem != null)
+        {
+            return;
         }
         if (Physics.Raycast(playerCameraTransform.position, playerCameraTransform.forward, out hit, hitRange, pickableLayerMask))
         {
