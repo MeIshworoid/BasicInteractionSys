@@ -43,7 +43,14 @@ public class Player : MonoBehaviour
 
     private void Use(InputAction.CallbackContext context)
     {
-
+        if (inHandItem != null)
+        {
+            IUseable usable = inHandItem.GetComponent<IUseable>();
+            if (usable != null)
+            {
+                usable.Use(this.gameObject);
+            }
+        }
     }
 
     private void Drop(InputAction.CallbackContext context)
@@ -62,7 +69,7 @@ public class Player : MonoBehaviour
 
     private void Interact(InputAction.CallbackContext context)
     {
-        if (hit.collider != null)
+        if (hit.collider != null && inHandItem == null)
         {
             Debug.Log(hit.collider.name);
             Rigidbody rb = hit.collider.GetComponent<Rigidbody>();
@@ -113,5 +120,10 @@ public class Player : MonoBehaviour
             hit.collider.GetComponent<Outline>().enabled = true;
             pickUPUI.SetActive(true);
         }
+    }
+
+    public void AddHealth(int healthBoost)
+    {
+        Debug.Log($"Boost health by {healthBoost}");
     }
 }
