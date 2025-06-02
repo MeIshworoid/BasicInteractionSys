@@ -8,11 +8,11 @@ public class Food : MonoBehaviour, IUseable
     [field: SerializeField]
     public UnityEvent OnUse { get; private set; }
 
-    private int healthBoost = 1;
+    private int _healthBoost = 1;
     public void Use(GameObject actor)
     {
         OnUse?.Invoke();
-        actor.GetComponent<Player>().AddHealth(healthBoost);
+        actor.GetComponent<Player>().AddHealth(_healthBoost);
         Destroy(gameObject);
     }
 }

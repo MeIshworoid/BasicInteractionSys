@@ -7,18 +7,18 @@ public class PickableItem : MonoBehaviour, IPickable
     [field: SerializeField]
     public bool KeepWorldPosition { get; private set; }
 
-    private Rigidbody rb;
+    private Rigidbody _rb;
 
     private void Awake()
     {
-        rb = GetComponent<Rigidbody>();
+        _rb = GetComponent<Rigidbody>();
     }
 
     public GameObject PickUp()
     {
-        if (rb != null)
+        if (_rb != null)
         {
-            rb.isKinematic = true;
+            _rb.isKinematic = true;
         }
 
         transform.position = Vector3.zero;

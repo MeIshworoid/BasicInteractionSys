@@ -6,47 +6,47 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] private LayerMask pickableLayerMask;
-    [SerializeField] private Transform playerCameraTransform;
-    [SerializeField] private GameObject pickUPUI;
-    [SerializeField] private Transform pickUpParent;
-    [SerializeField] private GameObject inHandItem;
+    [SerializeField] private LayerMask _pickableLayerMask;
+    [SerializeField] private Transform _playerCameraTransform;
+    [SerializeField] private GameObject _pickUPUI;
+    [SerializeField] private Transform _pickUpParent;
+    [SerializeField] private GameObject _inHandItem;
     [SerializeField]
     [Min(1)]
-    private float hitRange = 3;
-    [SerializeField] private InputActionReference interactionInput, dropInput, useInput, throwInput;
+    private float _hitRange = 3;
+    [SerializeField] private InputActionReference _interactionInput, _dropInput, _useInput, _throwInput;
     [SerializeField] private AudioSource pickUpSource;
 
-    private RaycastHit hit;
+    private RaycastHit _hit;
 
     private void Start()
     {
-        interactionInput.action.performed += PickUp;
-        dropInput.action.performed += Drop;
-        useInput.action.performed += Use;
-        throwInput.action.performed += Throw;
+        _interactionInput.action.performed += PickUp;
+        _dropInput.action.performed += Drop;
+        _useInput.action.performed += Use;
+        _throwInput.action.performed += Throw;
     }
 
     private void Throw(InputAction.CallbackContext context)
     {
-        if (inHandItem != null)
+        if (_inHandItem != null)
         {
-            inHandItem.transform.SetParent(null);
-            Rigidbody rb = inHandItem.GetComponent<Rigidbody>();
+            _inHandItem.transform.SetParent(null);
+            Rigidbody rb = _inHandItem.GetComponent<Rigidbody>();
             if (rb != null)
             {
                 rb.isKinematic = false;
-                rb.AddForce(playerCameraTransform.forward * 10f, ForceMode.Impulse);
+                rb.AddForce(_playerCameraTransform.forward * 10f, ForceMode.Impulse);
             }
-            inHandItem = null;
+            _inHandItem = null;
         }
     }
 
     private void Use(InputAction.CallbackContext context)
     {
-        if (inHandItem != null)
+        if (_inHandItem != null)
         {
-            IUseable usable = inHandItem.GetComponent<IUseable>();
+            IUseable usable = _inHandItem.GetComponent<IUseable>();
             if (usable != null)
             {
                 usable.Use(this.gameObject);
@@ -56,28 +56,28 @@ public class Player : MonoBehaviour
 
     private void Drop(InputAction.CallbackContext context)
     {
-        if (inHandItem != null)
+        if (_inHandItem != null)
         {
-            inHandItem.transform.SetParent(null);
-            Rigidbody rb = inHandItem.GetComponent<Rigidbody>();
+            _inHandItem.transform.SetParent(null);
+            Rigidbody rb = _inHandItem.GetComponent<Rigidbody>();
             if (rb != null)
             {
                 rb.isKinematic = false;
             }
-            inHandItem = null;
+            _inHandItem = null;
         }
     }
 
     private void PickUp(InputAction.CallbackContext context)
     {
-        if (hit.collider != null && inHandItem == null)
+        if (_hit.collider != null && _inHandItem == null)
         {
-            IPickable pickable = hit.collider.GetComponent<IPickable>();
+            IPickable pickable = _hit.collider.GetComponent<IPickable>();
             if (pickable != null)
             {
                 pickUpSource.Play();
-                inHandItem = pickable.PickUp();
-                inHandItem.transform.SetParent(pickUpParent.transform, pickable.KeepWorldPosition);
+                _inHandItem = pickable.PickUp();
+                _inHandItem.transform.SetParent(_pickUpParent.transform, pickable.KeepWorldPosition);
             }
             //Debug.Log(hit.collider.name);
             //Rigidbody rb = hit.collider.GetComponent<Rigidbody>();
@@ -110,23 +110,23 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        Debug.DrawRay(playerCameraTransform.position, playerCameraTransform.forward * hitRange, Color.red);
+        Debug.DrawRay(_playerCameraTransform.position, _playerCameraTransform.forward * _hitRange, Color.red);
 
-        if (hit.collider != null)
+        if (_hit.collider != null)
         {
             //hit.collider.GetComponent<Highlight>()?.ToggleHighlight(false);
-            hit.collider.GetComponent<Outline>().enabled = false;
-            pickUPUI.SetActive(false);
+            _hit.collider.GetComponent<Outline>().enabled = false;
+            _pickUPUI.SetActive(false);
         }
-        if (inHandItem != null)
+        if (_inHandItem != null)
         {
             return;
         }
-        if (Physics.Raycast(playerCameraTransform.position, playerCameraTransform.forward, out hit, hitRange, pickableLayerMask))
+        if (Physics.Raycast(_playerCameraTransform.position, _playerCameraTransform.forward, out _hit, _hitRange, _pickableLayerMask))
         {
             //hit.collider.GetComponent<Highlight>().ToggleHighlight(true);
-            hit.collider.GetComponent<Outline>().enabled = true;
-            pickUPUI.SetActive(true);
+            _hit.collider.GetComponent<Outline>().enabled = true;
+            _pickUPUI.SetActive(true);
         }
     }
 

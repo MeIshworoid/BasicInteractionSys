@@ -7,9 +7,14 @@ public class Weapon : MonoBehaviour, IUseable
 {
     [field: SerializeField]
     public UnityEvent OnUse { get; private set; }
+    [SerializeField] private Gun _gun;
 
     public void Use(GameObject actor)
     {
+        if (_gun != null)
+        {
+            _gun.Shoot();
+        }
         OnUse?.Invoke();
     }
 }
