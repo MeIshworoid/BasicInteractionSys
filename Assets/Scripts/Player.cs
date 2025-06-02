@@ -15,12 +15,13 @@ public class Player : MonoBehaviour
     [Min(1)]
     private float hitRange = 3;
     [SerializeField] private InputActionReference interactionInput, dropInput, useInput, throwInput;
+    [SerializeField] private AudioSource pickUpSource;
 
     private RaycastHit hit;
 
     private void Start()
     {
-        interactionInput.action.performed += Interact;
+        interactionInput.action.performed += PickUp;
         dropInput.action.performed += Drop;
         useInput.action.performed += Use;
         throwInput.action.performed += Throw;
@@ -67,36 +68,43 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void Interact(InputAction.CallbackContext context)
+    private void PickUp(InputAction.CallbackContext context)
     {
         if (hit.collider != null && inHandItem == null)
         {
-            Debug.Log(hit.collider.name);
-            Rigidbody rb = hit.collider.GetComponent<Rigidbody>();
-            if (hit.collider.GetComponent<Food>() || hit.collider.GetComponent<Weapon>())
+            IPickable pickable = hit.collider.GetComponent<IPickable>();
+            if (pickable != null)
             {
-                Debug.Log("Food here...");
-                inHandItem = hit.collider.gameObject;
-                inHandItem.transform.position = Vector3.zero;
-                inHandItem.transform.rotation = Quaternion.identity;
-                inHandItem.transform.SetParent(pickUpParent.transform, false);
-                if (rb != null)
-                {
-                    rb.isKinematic = true;
-                }
-                return;
+                pickUpSource.Play();
+                inHandItem = pickable.PickUp();
+                inHandItem.transform.SetParent(pickUpParent.transform, pickable.KeepWorldPosition);
             }
-            if (hit.collider.GetComponent<Item>())
-            {
-                Debug.Log("Item here...");
-                inHandItem = hit.collider.gameObject;
-                inHandItem.transform.SetParent(pickUpParent.transform, true);
-                if (rb != null)
-                {
-                    rb.isKinematic = true;
-                }
-                return;
-            }
+            //Debug.Log(hit.collider.name);
+            //Rigidbody rb = hit.collider.GetComponent<Rigidbody>();
+            //if (hit.collider.GetComponent<Food>() || hit.collider.GetComponent<Weapon>())
+            //{
+            //    Debug.Log("Food here...");
+            //    inHandItem = hit.collider.gameObject;
+            //    inHandItem.transform.position = Vector3.zero;
+            //    inHandItem.transform.rotation = Quaternion.identity;
+            //    inHandItem.transform.SetParent(pickUpParent.transform, false);
+            //    if (rb != null)
+            //    {
+            //        rb.isKinematic = true;
+            //    }
+            //    return;
+            //}
+            //if (hit.collider.GetComponent<Item>())
+            //{
+            //    Debug.Log("Item here...");
+            //    inHandItem = hit.collider.gameObject;
+            //    inHandItem.transform.SetParent(pickUpParent.transform, true);
+            //    if (rb != null)
+            //    {
+            //        rb.isKinematic = true;
+            //    }
+            //    return;
+            //}
         }
     }
 
